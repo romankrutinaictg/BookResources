@@ -1,4 +1,7 @@
 # Deploy to Azure Kubernetes Service
+# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
 - task: TerraformTaskV1@0
   inputs:
     provider: 'azurerm'
@@ -9,9 +12,7 @@
     backendAzureRmStorageAccountName: 'deovops'
     backendAzureRmContainerName: 'devops'
     backendAzureRmKey: 'tf/terraform.tfstate'
-# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
+    
 trigger:
 - master
 
