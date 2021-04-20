@@ -1,90 +1,26 @@
-# Deploy to Azure Kubernetes Service
-# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
+trigger:
+- master
+pool:
+  vmImage: 'ubuntu-latest'
+steps:
 - task: TerraformTaskV1@0
   inputs:
     provider: 'azurerm'
     command: 'init'
-    workingDirectory: 'Part-I-Tools/Azure Pipelines/VM'
-    backendServiceArm: 'ROMAN-VSE-MPN(1)(7cb1b750-b4d7-482b-b4da-6779a2d8d7d4)'
+    workingDirectory: "Part-I-Tools/Azure Pipelines/VM"
+    commandOptions: "-var 'subscriptionID=$(subscriptionID)' -var 'network_interface\
+_id=$(network_interface_id)'"
+    backendServiceArm: 'your_subscription_name_and_id'
     backendAzureRmResourceGroupName: 'DEVOPS'
     backendAzureRmStorageAccountName: 'deovops'
     backendAzureRmContainerName: 'devops'
     backendAzureRmKey: 'tf/terraform.tfstate'
-    
-trigger:
-- master
 
-resources:
-- repo: self
-
-variables:
-
-  # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: 'd76b251d-b14e-4240-98e1-96caa0d0891c'
-  imageRepository: 'nobsdevopsbookresources'
-  containerRegistry: 'nobsreg92.azurecr.io'
-  dockerfilePath: '**/Part-II-Project/New Application/Dockerfile/Dockerfile'
-  tag: '$(Build.BuildId)'
-  imagePullSecret: 'nobsreg927e80-auth'
-
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
-
-
-stages:
-- stage: Build
-  displayName: Build stage
-  jobs:
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: Docker@2
-      displayName: Build and push an image to container registry
-      inputs:
-        command: buildAndPush
-        repository: $(imageRepository)
-        dockerfile: $(dockerfilePath)
-        containerRegistry: $(dockerRegistryServiceConnection)
-        tags: |
-          $(tag)
-
-    - upload: manifests
-      artifact: manifests
-
-- stage: Deploy
-  displayName: Deploy stage
-  dependsOn: Build
-
-  jobs:
-  - deployment: Deploy
-    displayName: Deploy
-    pool:
-      vmImage: $(vmImageName)
-    environment: 'NoBSDevOpsBookResources.default'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: KubernetesManifest@0
-            displayName: Create imagePullSecret
-            inputs:
-              action: createSecret
-              secretName: $(imagePullSecret)
-              dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
-
-          - task: KubernetesManifest@0
-            displayName: Deploy to Kubernetes cluster
-            inputs:
-              action: deploy
-              manifests: |
-                $(Pipeline.Workspace)/manifests/deployment.yml
-                $(Pipeline.Workspace)/manifests/service.yml
-              imagePullSecrets: |
-                $(imagePullSecret)
-              containers: |
-                $(containerRegistry)/$(imageRepository):$(tag)
-
+- task: TerraformTaskV1@0
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    workingDirectory: 'Part-I-Tools/Azure Pipelines/VM'
+    commandOptions: '-var="subscriptionID=$(subscriptionID)" -var="network_interface\
+_id=$(network_interface_id)"'
+    environmentServiceNameAzureRM: 'your_subscription_name_and_id'
