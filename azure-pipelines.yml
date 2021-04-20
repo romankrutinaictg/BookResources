@@ -1,4 +1,14 @@
 # Deploy to Azure Kubernetes Service
+- task: TerraformTaskV1@0
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: 'Part-I-Tools/Azure Pipelines/VM'
+    backendServiceArm: 'ROMAN-VSE-MPN(1)(7cb1b750-b4d7-482b-b4da-6779a2d8d7d4)'
+    backendAzureRmResourceGroupName: 'DEVOPS'
+    backendAzureRmStorageAccountName: 'deovops'
+    backendAzureRmContainerName: 'devops'
+    backendAzureRmKey: 'tf/terraform.tfstate'
 # Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
