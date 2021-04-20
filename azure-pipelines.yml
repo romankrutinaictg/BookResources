@@ -10,7 +10,7 @@ steps:
     workingDirectory: "Part-I-Tools/Azure Pipelines/VM"
     commandOptions: "-var 'subscriptionID=$(subscriptionID)' -var 'network_interface\
 _id=$(network_interface_id)'"
-    backendServiceArm: 'your_subscription_name_and_id'
+    backendServiceArm: 'ROMAN-VSE-MPN(1)(7cb1b750-b4d7-482b-b4da-6779a2d8d7d4)'
     backendAzureRmResourceGroupName: 'DEVOPS'
     backendAzureRmStorageAccountName: 'deovops'
     backendAzureRmContainerName: 'devops'
